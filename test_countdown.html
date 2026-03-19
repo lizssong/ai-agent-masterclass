@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>카운트다운 테스트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #08080f;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .countdown-section {
+      background: #0f0010;
+      padding: 40px 30px;
+      text-align: center;
+      border-top: 2px solid #e8001c;
+      border-bottom: 2px solid #e8001c;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 16px;
+    }
+    .countdown-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ff8080;
+      letter-spacing: 2px;
+      margin-bottom: 24px;
+    }
+    .countdown-grid {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .countdown-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .countdown-num {
+      background: linear-gradient(135deg, #2a0010, #3d0018);
+      border: 2px solid #e8001c;
+      border-radius: 12px;
+      width: 80px;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(255,100,100,0.8);
+      box-shadow: 0 0 24px rgba(232,0,28,0.4);
+    }
+    .countdown-unit {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #aaa;
+      letter-spacing: 1px;
+    }
+    .countdown-sep {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: #e8001c;
+      align-self: flex-start;
+      margin-top: 18px;
+      line-height: 1;
+    }
+    .countdown-deadline {
+      font-size: 0.9rem;
+      color: #888;
+      margin-top: 12px;
+    }
+    .countdown-deadline strong { color: #ffb800; }
+  </style>
+</head>
+<body>
+  <div class="countdown-section">
+    <div class="countdown-label">⏰ 마감까지 남은 시간</div>
+    <div class="countdown-grid">
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-days">--</div>
+        <div class="countdown-unit">일</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-hours">--</div>
+        <div class="countdown-unit">시간</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-mins">--</div>
+        <div class="countdown-unit">분</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-secs">--</div>
+        <div class="countdown-unit">초</div>
+      </div>
+    </div>
+    <p class="countdown-deadline"><strong>3월 29일 자정</strong>까지 · 94% 할인 마감</p>
+  </div>
+  <script>
+    var deadline = new Date('2026-03-29T00:00:00+09:00').getTime();
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function updateCountdown() {
+      var now = Date.now();
+      var diff = deadline - now;
+      if (diff <= 0) { return; }
+      var days  = Math.floor(diff / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      var secs  = Math.floor((diff % (1000 * 60)) / 1000);
+      document.getElementById('cd-days').textContent = pad(days);
+      document.getElementById('cd-hours').textContent = pad(hours);
+      document.getElementById('cd-mins').textContent = pad(mins);
+      document.getElementById('cd-secs').textContent = pad(secs);
+      setTimeout(updateCountdown, 1000);
+    }
+    updateCountdown();
+  </script>
+</body>
+</html>
