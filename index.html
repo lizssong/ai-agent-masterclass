@@ -490,17 +490,14 @@
       animation: floatPulse 1.8s ease-in-out infinite;
     }
 
-    /* 마감 임박 배지 흔들기 */
-    @keyframes urgentShake {
-      0%, 100% { transform: rotate(0deg); }
-      20%       { transform: rotate(-3deg); }
-      40%       { transform: rotate(3deg); }
-      60%       { transform: rotate(-2deg); }
-      80%       { transform: rotate(2deg); }
-    }
+    /* 신청하기 버튼 - 호버 글로우 인터랙션 */
     .nav-apply {
-      animation: urgentShake 3s ease-in-out infinite;
-      transform-origin: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+    }
+    .nav-apply:hover {
+      transform: scale(1.07) !important;
+      box-shadow: 0 0 14px rgba(232,0,28,0.7), 0 0 28px rgba(232,0,28,0.35) !important;
+      background: #ff1a3a !important;
     }
 
     /* 스크롤 유도 화살표 바운스 */
