@@ -222,11 +222,116 @@
     /* ── ANCHOR ── */
     .anchor { display: block; position: relative; top: -56px; visibility: hidden; height: 0; }
 
+    /* ── COUNTDOWN TIMER ── */
+    .countdown-section {
+      background: linear-gradient(180deg, #0a0005 0%, #12000a 50%, #0a0005 100%);
+      padding: 28px 20px 32px;
+      text-align: center;
+      border-top: 1px solid rgba(232,0,28,0.2);
+      border-bottom: 1px solid rgba(232,0,28,0.2);
+    }
+    .countdown-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #ff6b6b;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .countdown-label::before,
+    .countdown-label::after {
+      content: '';
+      flex: 1;
+      max-width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(232,0,28,0.5));
+    }
+    .countdown-label::after {
+      background: linear-gradient(90deg, rgba(232,0,28,0.5), transparent);
+    }
+    .countdown-grid {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .countdown-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      min-width: 68px;
+    }
+    .countdown-num {
+      background: linear-gradient(135deg, #1a0008, #2a000e);
+      border: 1px solid rgba(232,0,28,0.4);
+      border-radius: 12px;
+      width: 68px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 0 18px rgba(232,0,28,0.25), inset 0 1px 0 rgba(255,255,255,0.05);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s;
+    }
+    .countdown-num::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 0; right: 0;
+      height: 1px;
+      background: rgba(0,0,0,0.4);
+    }
+    .countdown-num.pulse {
+      transform: scale(1.06);
+      box-shadow: 0 0 28px rgba(232,0,28,0.5);
+    }
+    .countdown-unit {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #888;
+      letter-spacing: 1px;
+    }
+    .countdown-sep {
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(232,0,28,0.6);
+      align-self: flex-start;
+      margin-top: 14px;
+      line-height: 1;
+    }
+    .countdown-deadline {
+      font-size: 0.8rem;
+      color: #555;
+      margin-top: 4px;
+      letter-spacing: -0.2px;
+    }
+    .countdown-deadline strong {
+      color: var(--gold);
+    }
+    .countdown-expired {
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--red);
+      padding: 20px;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 480px) {
       .sticky-nav a { font-size: 0.72rem; padding: 12px 4px; }
       .btn { font-size: 0.92rem; padding: 14px 18px; }
       .modal-title { font-size: 1.3rem; }
+      .countdown-item { min-width: 58px; }
+      .countdown-num { width: 58px; height: 62px; font-size: 1.8rem; border-radius: 10px; }
+      .countdown-grid { gap: 7px; }
     }
   </style>
 </head>
@@ -355,6 +460,33 @@
        alt="마감 임박 D-11 - AI 에이전트 마스터 1기 445만원→25만원 94% 할인 3/29 자정까지"
        class="sec-img" loading="lazy" />
 
+  <!-- COUNTDOWN TIMER -->
+  <div class="countdown-section" id="countdown-section">
+    <div class="countdown-label">⏰ 마감까지 남은 시간</div>
+    <div class="countdown-grid" id="countdown-grid">
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-days">--</div>
+        <div class="countdown-unit">일</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-hours">--</div>
+        <div class="countdown-unit">시간</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-mins">--</div>
+        <div class="countdown-unit">분</div>
+      </div>
+      <div class="countdown-sep">:</div>
+      <div class="countdown-item">
+        <div class="countdown-num" id="cd-secs">--</div>
+        <div class="countdown-unit">초</div>
+      </div>
+    </div>
+    <p class="countdown-deadline"><strong>3월 29일 자정</strong>까지 · 94% 할인 마감</p>
+  </div>
+
   <!-- FINAL CTA -->
   <div class="cta-band fire">
     <p style="font-size:0.8rem;color:#666;margin-bottom:20px;letter-spacing:-0.2px;">
@@ -406,6 +538,51 @@
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeModal();
   });
+
+  // ── COUNTDOWN TIMER ──
+  (function() {
+    // 마감: 2026년 3월 29일 자정 (한국시간 KST = UTC+9)
+    var deadline = new Date('2026-03-29T00:00:00+09:00').getTime();
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function updateCountdown() {
+      var now = Date.now();
+      var diff = deadline - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown-grid').innerHTML =
+          '<div class="countdown-expired">🔴 마감이 종료되었습니다</div>';
+        document.querySelector('.countdown-deadline').textContent = '신청이 마감되었습니다.';
+        return;
+      }
+
+      var days  = Math.floor(diff / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      var mins  = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      var secs  = Math.floor((diff % (1000 * 60)) / 1000);
+
+      var dEl = document.getElementById('cd-days');
+      var hEl = document.getElementById('cd-hours');
+      var mEl = document.getElementById('cd-mins');
+      var sEl = document.getElementById('cd-secs');
+
+      // 초가 바뀔 때 pulse 애니메이션
+      if (sEl.textContent !== pad(secs)) {
+        sEl.classList.add('pulse');
+        setTimeout(function(){ sEl.classList.remove('pulse'); }, 150);
+      }
+
+      dEl.textContent = pad(days);
+      hEl.textContent = pad(hours);
+      mEl.textContent = pad(mins);
+      sEl.textContent = pad(secs);
+
+      setTimeout(updateCountdown, 1000);
+    }
+
+    updateCountdown();
+  })();
 </script>
 </body>
 </html>
