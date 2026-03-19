@@ -405,6 +405,126 @@
       box-shadow: none !important;
     }
 
+    /* ── ANIMATIONS & INTERACTIONS ── */
+
+    /* 파티클 캔버스 */
+    #particle-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+    .page-wrapper { position: relative; z-index: 1; }
+
+    /* 스크롤 등장 - fade up */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.7s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* 이미지 살짝 줌 + 글로우 등장 */
+    .reveal-img {
+      opacity: 0;
+      transform: scale(0.97);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal-img.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* 네온 글로우 펄스 - 마감 임박 섹션 */
+    @keyframes neonPulse {
+      0%, 100% { box-shadow: 0 0 8px rgba(232,0,28,0.4), 0 0 20px rgba(232,0,28,0.2); }
+      50%       { box-shadow: 0 0 18px rgba(232,0,28,0.8), 0 0 40px rgba(232,0,28,0.4), 0 0 60px rgba(232,0,28,0.15); }
+    }
+    .countdown-section {
+      animation: neonPulse 2.8s ease-in-out infinite;
+    }
+
+    /* 카운트다운 숫자 플립 */
+    @keyframes flipIn {
+      0%   { transform: rotateX(-90deg) scale(0.8); opacity: 0; }
+      60%  { transform: rotateX(10deg) scale(1.05); opacity: 1; }
+      100% { transform: rotateX(0deg) scale(1); opacity: 1; }
+    }
+    .countdown-num.flip {
+      animation: flipIn 0.35s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    /* 버튼 shimmer 효과 */
+    .btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%; left: -75%;
+      width: 50%; height: 200%;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+      transform: skewX(-15deg);
+      transition: none;
+    }
+    .btn:hover::after {
+      animation: shimmer 0.55s ease forwards;
+    }
+    @keyframes shimmer {
+      0%   { left: -75%; }
+      100% { left: 125%; }
+    }
+
+    /* 하단 플로팅 바 pulse */
+    @keyframes floatPulse {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-3px); }
+    }
+    .fb-apply {
+      animation: floatPulse 1.8s ease-in-out infinite;
+    }
+
+    /* 마감 임박 배지 흔들기 */
+    @keyframes urgentShake {
+      0%, 100% { transform: rotate(0deg); }
+      20%       { transform: rotate(-3deg); }
+      40%       { transform: rotate(3deg); }
+      60%       { transform: rotate(-2deg); }
+      80%       { transform: rotate(2deg); }
+    }
+    .nav-apply {
+      animation: urgentShake 3s ease-in-out infinite;
+      transform-origin: center;
+    }
+
+    /* 스크롤 유도 화살표 바운스 */
+    @keyframes bounceDown {
+      0%, 100% { transform: translateY(0); opacity: 0.7; }
+      50%       { transform: translateY(8px); opacity: 1; }
+    }
+    .scroll-hint {
+      display: flex;
+      justify-content: center;
+      padding: 12px 0 4px;
+      animation: bounceDown 1.5s ease-in-out infinite;
+      font-size: 1.4rem;
+      color: rgba(232,0,28,0.6);
+    }
+
+    /* 이미지 호버 미세 확대 */
+    .sec-img {
+      transition: transform 0.4s ease;
+    }
+    .sec-img:hover {
+      transform: scale(1.008);
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 480px) {
       .sticky-nav a { font-size: 0.72rem; padding: 12px 4px; }
@@ -417,7 +537,8 @@
   </style>
 </head>
 <body>
-
+<!-- 파티클 배경 커브스 -->
+<canvas id="particle-canvas"></canvas>
 <!-- ════ STICKY NAV ════ -->
 <nav class="sticky-nav">
   <a href="#curriculum">📋 커리큘럼</a>
@@ -456,7 +577,7 @@
   <span class="anchor" id="top"></span>
   <img src="images/sec01_hero.webp"
        alt="AI 에이전트 마스터 클래스 1기 모집 - AI를 아는 사람에서 AI로 일하는 사람으로 2026.4.5 개강"
-       class="sec-img" loading="eager" />
+       class="sec-img reveal-img" loading="eager" />
 
   <!-- HERO CTA -->
   <div class="cta-band hero">
@@ -473,15 +594,15 @@
   <!-- 2. HERO2 - 1기 모집 서브 배너 -->
   <img src="images/sec02_hero2.webp"
        alt="AI 에이전트 마스터 클래스 1기 모집 - 2026.4.5 개강 매주 일요일 저녁 8시"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 3. CONCERN - 이런 고민 있으신가요 + 8주 후 이렇게 됩니다 -->
   <img src="images/sec03_concern.webp"
        alt="이런 고민 있으신가요? AI 시작이 막막해요 → 8주 후 이렇게 됩니다"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- MID CTA 1 -->
-  <div class="cta-band mid">
+  <div class="cta-band mid reveal">
     <div class="btn-group">
       <a href="https://forms.gle/XEmFGvnV6QVNFzD68" target="_blank" class="btn btn-red">
         🚀 지금 신청하기
@@ -495,21 +616,21 @@
   <!-- 4. DIFF - 이 과정만의 차별점 -->
   <img src="images/sec04_diff.webp"
        alt="이 과정만의 차별점 - 일반 AI 강의 vs AI 에이전트 마스터 클래스"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 5. MODULES - 8주 커리큘럼 모듈 목록 -->
   <span class="anchor" id="curriculum"></span>
   <img src="images/sec05_modules.webp"
        alt="8주 커리큘럼 - AI 기획서, AI 챗봇, 웹서비스, 노코드 앱, SNS 자동화"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 6. BENEFIT - 수강 후 얻게 되는 것 -->
   <img src="images/sec06_benefit.webp"
        alt="수강 후 얻게 되는 것 - 즉시 실무 투입 가능한 AI 스킬셋, 7개의 실전 포트폴리오, AI 융합 전문가 네트워크, AI마케팅지도사 자격증 취득"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- MID CTA 2 -->
-  <div class="cta-band mid">
+  <div class="cta-band mid reveal">
     <div class="btn-group">
       <a href="https://forms.gle/XEmFGvnV6QVNFzD68" target="_blank" class="btn btn-red">
         🚀 지금 바로 신청하기
@@ -523,23 +644,23 @@
   <!-- 7. CURRICULUM - 8주 커리큘럼 상세 로드맵 -->
   <img src="images/sec07_curriculum.webp"
        alt="8주 커리큘럼 로드맵 - 1주 AI기획서, 2주 데이터분석, 3주 AI챗봇, 4주 웹서비스, 5주 노코드앱, 6주 AI콘텐츠, 7주 SNS자동화, 8주 네트워킹"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 8. INSTRUCTORS 1 - 강사진 WEEK 1~4 -->
   <span class="anchor" id="instructors"></span>
   <img src="images/sec08_instructors1.webp"
        alt="강사진 - WEEK1 이현구(AI 기획서&PPT), WEEK2 김성식(AI 리서치&분석), WEEK3 임만식(맞춤형 AI 챗봇), WEEK4 윤성임(웹서비스 프로토타입)"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 9. INSTRUCTORS 2 - 강사진 WEEK 5~7 -->
   <img src="images/sec09_instructors2.webp"
        alt="강사진 - WEEK5 홍용기(노코드 앱&DB), WEEK6 송민경(AI 이미지&영상), WEEK7 홍진경(SNS 자동화)"
-       class="sec-img" loading="lazy" />
+       class="sec-img reveal-img" loading="lazy" />
 
   <!-- 10. DEADLINE - 마감 임박 (크롭: 마감임박 + D-11 + AI 에이전트 마스터 1기) -->
   <img src="images/sec10_top_final.webp"
        alt="마감 임박 D-11 - AI 에이전트 마스터 1기"
-       class="sec-img" style="margin-bottom: 0; display: block;" loading="lazy" />
+       class="sec-img reveal-img" style="margin-bottom: 0; display: block;" loading="lazy" />
 
   <!-- COUNTDOWN TIMER -->
   <div class="countdown-section" id="countdown-section" style="margin-top: 0; padding-top: 28px;">
@@ -586,7 +707,7 @@
   </div>
 
   <!-- FINAL CTA -->
-  <div class="cta-band fire">
+  <div class="cta-band fire reveal">
     <p style="font-size:0.8rem;color:#666;margin-bottom:20px;letter-spacing:-0.2px;">
       2026.4.5 개강 &nbsp;·&nbsp; 매주 일요일 저녁 8시 &nbsp;·&nbsp; 3/29 마감
     </p>
@@ -697,9 +818,120 @@
 
       setTimeout(updateCountdown, 1000);
     }
-
     updateCountdown();
   })();
-</script>
+
+  // ── SCROLL REVEAL ──
+  (function() {
+    var revealEls = document.querySelectorAll('.reveal, .reveal-img');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry, i) {
+        if (entry.isIntersecting) {
+          // 연속 등장 딜레이
+          setTimeout(function() {
+            entry.target.classList.add('visible');
+          }, i * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    revealEls.forEach(function(el) { observer.observe(el); });
+  })();
+
+  // ── COUNTDOWN FLIP ANIMATION ──
+  // 숫자가 바뀌면 flip 클래스 추가
+  var prevSecs = -1;
+  var prevMins = -1;
+  var prevHours = -1;
+  var prevDays = -1;
+  function addFlip(el, prev, cur) {
+    if (prev !== cur) {
+      el.classList.remove('flip');
+      void el.offsetWidth; // reflow
+      el.classList.add('flip');
+      setTimeout(function(){ el.classList.remove('flip'); }, 400);
+    }
+  }
+  // 원래 updateCountdown 함수를 래핑하여 flip 적용
+  var _origUpdate = updateCountdown;
+  // 이미 실행된 타이머에 플립 주입
+  setInterval(function() {
+    var dEl = document.getElementById('cd-days');
+    var hEl = document.getElementById('cd-hours');
+    var mEl = document.getElementById('cd-mins');
+    var sEl = document.getElementById('cd-secs');
+    if (!sEl) return;
+    var curS = parseInt(sEl.textContent);
+    var curM = parseInt(mEl.textContent);
+    var curH = parseInt(hEl.textContent);
+    var curD = parseInt(dEl.textContent);
+    if (!isNaN(curS)) {
+      addFlip(sEl, prevSecs, curS);
+      addFlip(mEl, prevMins, curM);
+      addFlip(hEl, prevHours, curH);
+      addFlip(dEl, prevDays, curD);
+      prevSecs = curS; prevMins = curM; prevHours = curH; prevDays = curD;
+    }
+  }, 1000);
+
+  // ── PARTICLE BACKGROUND ──
+  (function() {
+    var canvas = document.getElementById('particle-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W, H, particles = [];
+    var COLORS = ['rgba(232,0,28,', 'rgba(255,140,66,', 'rgba(255,77,141,'];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 파티클 생성
+    for (var i = 0; i < 55; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: Math.random() * 1.8 + 0.4,
+        dx: (Math.random() - 0.5) * 0.4,
+        dy: (Math.random() - 0.5) * 0.4,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        alpha: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      particles.forEach(function(p) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + p.alpha + ')';
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+        if (p.x < 0) p.x = W;
+        if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H;
+        if (p.y > H) p.y = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+  })();
+
+  // ── SCROLL HINT ARROW ──
+  // 첫 이미지 아래에 스크롤 유도 화살표 삽입
+  (function() {
+    var firstImg = document.querySelector('.sec-img');
+    if (firstImg && firstImg.parentNode) {
+      var hint = document.createElement('div');
+      hint.className = 'scroll-hint';
+      hint.innerHTML = '▼';
+      firstImg.parentNode.insertBefore(hint, firstImg.nextSibling);
+    }
+  })();
+</script>>
 </body>
 </html>
