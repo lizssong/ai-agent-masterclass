@@ -677,17 +677,32 @@
         <div class="countdown-unit">초</div>
       </div>
     </div>
-    <p class="countdown-deadline"><strong>4월 5일 자정</strong>까지 · 94% 할인 마감</p>
-    <!-- 가격 정보 -->
-    <div class="price-info" id="price-info">
+    <p class="countdown-deadline" id="countdown-deadline-text"><strong>4월 5일 자정</strong>까지 신청 가능</p>
+    <!-- 가격 정보: 얼리버드 (3/29까지) -->
+    <div class="price-info" id="price-info-early" style="display:none;">
+      <p style="color:#ff9900;font-size:0.85rem;font-weight:700;margin-bottom:6px;">⚡ 얼리버드 특가</p>
       <p class="price-original">445만원</p>
       <div class="price-row">
         <span class="price-arrow">→</span>
         <span class="price-current">25만원</span>
         <span class="price-badge">94%<br>할인</span>
       </div>
-      <p class="price-deadline">4/5 자정까지만 적용</p>
+      <p class="price-deadline">3/29 자정까지만 적용</p>
       <a href="https://forms.gle/XEmFGvnV6QVNFzD68" target="_blank" class="btn btn-red price-cta" id="apply-btn-countdown">
+        🚀 얼리버드 지금 신청하기
+      </a>
+    </div>
+    <!-- 가격 정보: 정가 (3/30~4/5) -->
+    <div class="price-info" id="price-info-regular" style="display:none;">
+      <p style="color:#aaa;font-size:0.85rem;font-weight:700;margin-bottom:6px;">정가 신청</p>
+      <p class="price-original">445만원</p>
+      <div class="price-row">
+        <span class="price-arrow">→</span>
+        <span class="price-current" style="color:#ff9900;">30만원</span>
+        <span class="price-badge" style="background:#555;">93%<br>할인</span>
+      </div>
+      <p class="price-deadline">4/5 자정까지만 적용</p>
+      <a href="https://forms.gle/XEmFGvnV6QVNFzD68" target="_blank" class="btn btn-red price-cta">
         🚀 지금 신청하기
       </a>
     </div>
@@ -749,26 +764,55 @@
     if (e.key === 'Escape') closeModal();
   });
 
-  // ── COUNTDOWN TIMER ──
+   // ── COUNTDOWN TIMER ──
   (function() {
-    // 마감: 2026년 4월 5일 자정 (한국시간 KST = UTC+9) - 첫 강의 당일까지 신청 가능
-    var deadline = new Date('2026-04-05T23:59:59+09:00').getTime();
+    // 얼리버드 마감: 2026년 3월 29일 자정 (KST)
+    var earlyDeadline = new Date('2026-03-29T23:59:59+09:00').getTime();
+    // 정가 마감: 2026년 4월 5일 자정 (KST)
+    var finalDeadline = new Date('2026-04-05T23:59:59+09:00').getTime();
 
     function pad(n) { return String(n).padStart(2, '0'); }
 
+    function showPricePhase() {
+      var now = Date.now();
+      var earlyEl = document.getElementById('price-info-early');
+      var regularEl = document.getElementById('price-info-regular');
+      var expiredEl = document.getElementById('price-expired');
+      var deadlineText = document.getElementById('countdown-deadline-text');
+      if (now <= earlyDeadline) {
+        // 얼리버드 기간
+        if (earlyEl) earlyEl.style.display = 'block';
+        if (regularEl) regularEl.style.display = 'none';
+        if (expiredEl) expiredEl.style.display = 'none';
+        if (deadlineText) deadlineText.innerHTML = '<strong>3월 29일 자정</strong>까지 ⚡ 얼리버드 25만원';
+      } else if (now <= finalDeadline) {
+        // 정가 기간
+        if (earlyEl) earlyEl.style.display = 'none';
+        if (regularEl) regularEl.style.display = 'block';
+        if (expiredEl) expiredEl.style.display = 'none';
+        if (deadlineText) deadlineText.innerHTML = '<strong>4월 5일 자정</strong>까지 정가 30만원';
+      } else {
+        // 완전 마감
+        if (earlyEl) earlyEl.style.display = 'none';
+        if (regularEl) regularEl.style.display = 'none';
+        if (expiredEl) expiredEl.style.display = 'block';
+      }
+    }
+
+    // 페이지 로드 시 가격 단계 표시
+    showPricePhase();
+
     function updateCountdown() {
       var now = Date.now();
+      // 얼리버드 기간이면 3/29까지 카운트다운, 아니면 4/5까지
+      var deadline = (now <= earlyDeadline) ? earlyDeadline : finalDeadline;
       var diff = deadline - now;
-
-      if (diff <= 0) {
+      if (now > finalDeadline) {
+        // 완전 마감
         document.getElementById('countdown-grid').innerHTML =
           '<div class="countdown-expired">🔴 신청이 마감되었습니다</div>';
-        document.querySelector('.countdown-deadline').textContent = '마감이 종료되었습니다.';
-        // 가격 정보 숨기고 마감 메시지 표시
-        var priceInfo = document.getElementById('price-info');
-        var priceExpired = document.getElementById('price-expired');
-        if (priceInfo) priceInfo.style.display = 'none';
-        if (priceExpired) priceExpired.style.display = 'block';
+        var deadlineText = document.getElementById('countdown-deadline-text');
+        if (deadlineText) deadlineText.textContent = '마감이 종료되었습니다.';
         // 모든 신청 버튼 비활성화
         var applyBtns = document.querySelectorAll('a[href="https://forms.gle/XEmFGvnV6QVNFzD68"]');
         applyBtns.forEach(function(btn) {
@@ -776,7 +820,6 @@
           btn.removeAttribute('href');
           btn.textContent = '🔴 신청 마감';
         });
-        // 하단 고정 신청 버튼도 비활성화
         var fbApply = document.querySelector('.fb-apply');
         if (fbApply) {
           fbApply.classList.add('btn-disabled');
@@ -784,6 +827,10 @@
           fbApply.textContent = '🔴 신청 마감';
         }
         return;
+      }
+      // 얼리버드 마감 시 가격 전환
+      if (now > earlyDeadline) {
+        showPricePhase();
       }
 
       var days  = Math.floor(diff / (1000 * 60 * 60 * 24));
